@@ -1,0 +1,16 @@
+{
+  "manifest_version": 2,
+
+  "name": "PosicioTelegram",
+  "description": "This extension sends google maps position picked from Url to a Telegram group through a bot",
+  "version": "1.0",
+
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_popup": "popup.html"
+  },
+  "permissions": [
+    "activeTab",
+    "https://ajax.googleapis.com/"
+  ]
+}
