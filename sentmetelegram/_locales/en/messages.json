@@ -1,0 +1,82 @@
+{
+  "extName": {
+    "message": "SendMe telegram",
+    "description": "Extension name"
+  },
+  "extDesc": {
+    "message": "Allows you to send links, images, maps, quotes from browser to your Telegram via bot.",
+    "description": "Extension description"
+  },
+  "AppIconTitle": {
+    "message": "Send URL of active tab to Telegram",
+    "description": "Extension name"
+  },
+  "popup_manual": {
+    "message": "Magic isn't working yet. ",
+    "description": ""
+  },
+  "popup_manual_text_first": {
+    "message": "You need to subscribe for SendMe bot in Telegram (press /start in Telegram chat):",
+    "description": ""
+  },
+  "button_addbot": {
+    "message": "Subscribe",
+    "description": ""
+  },
+  "popup_manual_text_second": {
+    "message": "Last thing:",
+    "description": ""
+  },
+  "button_getID": {
+    "message": "get userID",
+    "description": ""
+  },
+  "button_getID_state_check": {
+    "message": "checking",
+    "description": ""
+  },
+  "button_getID_state_done": {
+    "message": "Done!",
+    "description": ""
+  },
+  "button_getID_state_again": {
+    "message": "retry",
+    "description": ""
+  },
+  "contextImage": {
+    "message": "Send image to Telegram",
+    "description": ""
+  },
+  "contextSelection": {
+    "message": "Send selection to Telegram",
+    "description": ""
+  },
+  "contextLink": {
+    "message": "Send link URL to Telegram",
+    "description": ""
+  },
+  "contextPage": {
+    "message": "Send page URL to Telegram",
+    "description": ""
+  },
+  "contextLinkCaptions": {
+    "message": "please find the link below: |here is the URL: |link: |telegram from the browser: ",
+    "description": ""
+  },
+  "BotGreeting": {
+    "message": "Hey! \r\nI'm SendMe bot for Telegram. Now you can send any links, images and text directly from your web browser!\r\n\r\nJust click on SendMe icon to send URL of active tab.",
+    "description": ""
+  },
+  "naviLinkTitle": {
+    "message": "Path for Yandex.Navigator: ",
+    "description": ""
+  },
+  "contexSelectionTitle": {
+    "message": "Selected text: ",
+    "description": ""
+  },
+  "contexSelectionFrom": {
+    "message": "sended from: ",
+    "description": ""
+  }
+}

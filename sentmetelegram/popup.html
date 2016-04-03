@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>SENDME</title>
+        <script src="/js/jquery2.min.js"></script>
+        <script src="popup.js"></script>
+        <script src="/js/bootstrap.min.js"></script>
+        <link href="/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/css/font-awesome.min.css" rel="stylesheet">
+        <style TYPE="text/css">
+            body {
+                width: 300px;
+                padding-bottom: 20px;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            #youtube {
+                width: 270px;
+                height: 150px;
+                background: URL("images/youtube_tutorial.png");
+            }
+
+            #youtube:hover {
+                background: URL("images/youtube_tutorial_hover.png");
+                cursor: pointer;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h4>SendMe</h4>
+            <div class="row">
+                <div class="col-md-12">
+                    <h4 id="manual" class="manual">Инструкция: </h4>
+                    <div class="panel panel-default manual">
+                        <div class="panel-body">
+                            1. <span id="manual_first"></span><br/>
+                            <button type="button" id="addbot" class="btn btn-info" >Подписаться</button>
+                            <br/><br/>
+                            2. <span id="manual_second"></span><br/>
+                            <button type="button" id="getID" class="btn btn-info" >Получить user_id</button>
+                        </div>
+                    </div>
+                <!--                     
+                    <h4 id="tutorial">Как отправлять в Телеграм: </h4>
+                    Посмотрите короткое видео:
+                    <div id="youtube"></div>   
+                -->
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
