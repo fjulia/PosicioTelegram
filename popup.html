@@ -1,37 +1,45 @@
-<!doctype html>
-<!--
- This page is shown when the extension button is clicked, because the
- "browser_action" field in manifest.json contains the "default_popup" key with
- value "popup.html".
- -->
+<!DOCTYPE html>
 <html>
-  <head>
-    <title>Getting Started Extension's Popup</title>
-    <style>
-      body {
-        font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
-        font-size: 100%;
-      }
-      #status {
-        /* avoid an excessively wide status text */
-        white-space: pre;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        max-width: 400px;
-      }
-    </style>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>SENDME</title>
+        <script src="/js/jquery2.min.js"></script>
+        <script src="popup.js"></script>
+        <script src="/js/bootstrap.min.js"></script>
+        <link href="/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/css/font-awesome.min.css" rel="stylesheet">
+        <style TYPE="text/css">
+            body {
+                width: 475px;
+                padding-bottom: 20px;
+            }
 
-    <!--
-      - JavaScript and HTML must be in separate files: see our Content Security
-      - Policy documentation[1] for details and explanation.
-      -
-      - [1]: https://developer.chrome.com/extensions/contentSecurityPolicy
-     -->
-    <script src="popup.js"></script>
-  </head>
-  <body>
-    <div id="status"></div>
-    <img id="image-result" hidden>
-  </body>
+            button {
+                width: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h4>PositionTelegram</h4>
+            <div class="row">
+                <div class="col-md-12">
+                    <h4 id="manual" class="manual">Gairebé ho tens, falta configurar-ho: </h4>
+                    <div class="panel panel-default manual">
+                        <div class="panel-body">
+                            1. <span id="manual_first">Crea un bot i posa el Token d'accés aquí:</span><br/><br/>
+                            <input id="bot_token" size="50" placeholder="token">
+                            <br/><br/>
+                            2. <span id="manual_second">Escriu el nom del grup aquí:</span><br/><br/>
+                            <input id="bot_group" size="50" placeholder="nom del grup">
+                            <br/><br/>
+                            3. <span id="manual_third">Fés click al botó per configurar-ho</span><br/>
+                            <button type="button" id="getID" class="btn btn-info" >Configura</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
 </html>
-
