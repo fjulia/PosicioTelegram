@@ -8,6 +8,7 @@
     "persistent": true,
     "page": "background.html"
   },
+  "options_page": "options.html",
   "icons": {
     "16": "menu_icon.png",
     "48": "sendme48.png",

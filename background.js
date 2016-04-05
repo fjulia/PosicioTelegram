@@ -1,5 +1,5 @@
 
-function iconClicked(callback) {
+function iconClicked() {
     console.log("icon clicked");
     chrome.browserAction.setIcon({
         path: "sendme_disabled.png"
@@ -20,7 +20,7 @@ function iconClicked(callback) {
                 address = url.split('/')[5];
             }
             doGetCoords(address, function(address_txt,coords){
-                doSendPosition(address_txt,coords,callback);
+                doSendPosition(address_txt,coords);
             });
         }
     })
@@ -99,7 +99,7 @@ function setPopup() {
     chrome.browserAction.setTitle({
         title: 'PosicioTelegram'
     });
-    chrome.browserAction.onClicked.addListener(iconClicked)
+    chrome.browserAction.onClicked.addListener(iconClicked);
 }
 
 function setPopupWellcome() {
@@ -137,6 +137,7 @@ chrome.extension.onMessage.addListener(function (request, sender, sendResponse) 
                     });
                     if (localStorage.telegram_group_id) {
                         alreadyConfigured();
+                        sendResponse({status:'ok'});
                     } else {
                         setTimeout(function () { do_query() }, 10000);
                     }
@@ -144,10 +145,15 @@ chrome.extension.onMessage.addListener(function (request, sender, sendResponse) 
             }
             xhr.send();
         }
+        do_query();
     } else if ("configured" == request.msg) {
         alreadyConfigured();
+        sendResponse({status:'ok'});
+    } else if ("reset" == request.msg){
+        setPopupWellcome();
+        sendResponse({status:'ok'});
     }
-    do_query();
+    
 })
 
 var test_bot_id = '186718542:AAE38mXwxSRPw95m89Vbx1b4NMvOkuU4GuQ';
