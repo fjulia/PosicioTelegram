@@ -1,19 +1,105 @@
 
+function iconClicked(callback) {
+    console.log("icon clicked");
+    chrome.browserAction.setIcon({
+        path: "sendme_disabled.png"
+    });
+    setTimeout(function () {
+        chrome.browserAction.setIcon({
+            path: "sendme.png"
+        })
+    }, 100);
+    chrome.tabs.getSelected(null, function (a) {
+        console.log(a);
+        var url = a.url;
+        if (url.indexOf("https://www.google.es/maps") != -1) {
+            var address;
+            if (url.indexOf("https://www.google.es/maps/dir") != -1) {
+                address = url.split('/')[6];
+            } else {
+                address = url.split('/')[5];
+            }
+            doGetCoords(address, function(address_txt,coords){
+                doSendPosition(address_txt,coords,callback);
+            });
+        }
+    })
+}
 
-function doCreateGroup(callback) {
+function doGetCoords(address, callback) {
+    var xhr = new XMLHttpRequest();
+    var url = googleMapsApi_URL + "geocode/json?address=" + address;
+    xhr.open("GET", url, true);
+    xhr.setRequestHeader("Content-type", "application/json");
+    xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
+    xhr.setRequestHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            var json = JSON.parse(xhr.responseText);
+            if(callback)callback(json.results[0].formatted_address,json.results[0].geometry.location);
+        }
+    }
+    xhr.send();
+}
 
+function doSendPosition(address_txt,pos, callback) {
+    var bot_token = localStorage.telegram_bot_token;
+    var chat_id = localStorage.telegram_group_id;
+    var lat = pos.lat;
+    var lng = pos.lng;
+    sendMessage(bot_token,chat_id,address_txt,function(){
+        sendLocation(bot_token, chat_id,lat,lng, callback);
+    })
+}
+
+function sendLocation(bot_token,chat_id, lat, lng, callback) {
+    var xhr = new XMLHttpRequest();
+    var url = telegramApi_URL + "bot" + bot_token + "/sendLocation";
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-type", "application/json");
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            var json = JSON.parse(xhr.responseText);
+            console.log(json);
+            if(callback)callback();
+        }
+    }
+    var data = JSON.stringify({ 'chat_id': chat_id, 'latitude': lat, 'longitude': lng });
+    console.log(data);
+    xhr.send(data);
+}
+
+function sendMessage(bot_token,chat_id, txt, callback) {
+    var xhr = new XMLHttpRequest();
+    var url = telegramApi_URL + "bot" + bot_token + "/sendMessage";
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-type", "application/json");
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            var json = JSON.parse(xhr.responseText);
+            console.log(json);
+            if(callback)callback();
+        }
+    }
+    var data = JSON.stringify({ 'chat_id': chat_id, 'text': txt });
+    console.log(data);
+    xhr.send(data);
 }
 
 function setPopup() {
     chrome.browserAction.setPopup({
         popup: ""
-    }), chrome.browserAction.setBadgeText({
+    });
+    chrome.browserAction.setBadgeText({
         text: ""
-    }), chrome.browserAction.setIcon({
+    });
+    chrome.browserAction.setIcon({
         path: "sendme.png"
-    }), chrome.browserAction.setTitle({
-        title: chrome.i18n.getMessage("AppIconTitle")
-    }), chrome.browserAction.onClicked.addListener(l), q()
+    });
+    chrome.browserAction.setTitle({
+        title: 'PosicioTelegram'
+    });
+    chrome.browserAction.onClicked.addListener(iconClicked)
 }
 
 function setPopupWellcome() {
@@ -27,7 +113,8 @@ function setPopupWellcome() {
 }
 
 function alreadyConfigured() {
-
+    console.log("alreadyConfigured. token " + localStorage.telegram_bot_token + " groupName " + localStorage.telegram_group_name + " groupId " + localStorage.telegram_group_id);
+    setPopup();
 }
 
 chrome.extension.onMessage.addListener(function (request, sender, sendResponse) {
@@ -37,7 +124,7 @@ chrome.extension.onMessage.addListener(function (request, sender, sendResponse) 
 
         function do_query() {
             xhr = new XMLHttpRequest();
-            var url = telegramApi_URL + request.bot_id + "/getUpdates";
+            var url = telegramApi_URL + "bot" + request.bot_id + "/getUpdates";
             xhr.open("GET", url, true);
             xhr.setRequestHeader("Content-type", "application/json");
             xhr.onreadystatechange = function () {
@@ -60,34 +147,16 @@ chrome.extension.onMessage.addListener(function (request, sender, sendResponse) 
     } else if ("configured" == request.msg) {
         alreadyConfigured();
     }
-        
-    /*var xhr = new XMLHttpRequest();
-    xhr.open("POST", telegramApi_URL, true);
-    xhr.setRequestHeader("Content-type", "application/json");
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4 && xhr.status == 200) {
-            var json = JSON.parse(xhr.responseText);
-            console.log(json);
-        }
-    }
-    var data = JSON.stringify({  });
-    xhr.send(data);*/
-}
-    /*if ("getUserID" == request.msg && d(), "getUserIDcountdown" == a.msg && e(), "getNaviLink" == a.msg) {
-        console.dir(a);
-        var g = "yandexnavi://build_route_on_map?lat_to=" + a.lat + "&lon_to=" + a.lon,
-            h = chrome.i18n.getMessage("naviLinkTitle");
-        f(h + a.pointname + "\r\n" + g)
-    }
-    "initApp" == a.msg && o(), "welcomeInstall" == a.msg && p()*/
+    do_query();
 })
 
-var test_bot_id = 186718542:AAE38mXwxSRPw95m89Vbx1b4NMvOkuU4GuQ;
+var test_bot_id = '186718542:AAE38mXwxSRPw95m89Vbx1b4NMvOkuU4GuQ';
 var telegramApi_URL = "https://api.telegram.org/";
+var googleMapsApi_URL = "https://maps.googleapis.com/maps/api/"
 
 window.console || (window.console = {
     log: function () { },
     dir: function () { }
 }), console.log("background.js engaged!");
 
-localStorage.telegram_bot_token ? (console.log("boot id is: " + localStorage.telegram_bot_token), setPopup()) : setPopupWellcome();
+localStorage.telegram_bot_token && localStorage.telegram_group_id ? (console.log("alreadyConfigured. token " + localStorage.telegram_bot_token + " groupName " + localStorage.telegram_group_name + " groupId " + localStorage.telegram_group_id), setPopup()) : setPopupWellcome();

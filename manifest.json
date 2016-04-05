@@ -20,6 +20,8 @@
     "activeTab",
     "storage",
     "https://ajax.googleapis.com/",
-    "https://api.telegram.org/"
+    "https://api.telegram.org/",
+    "https://core.telegram.org/bots",
+    "https://maps.googleapis.com/*"
   ]
 }

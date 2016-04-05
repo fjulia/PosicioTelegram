@@ -46,7 +46,8 @@
     "webNavigation",
     "*://maps.yandex.ru/*",
     "*://ideafromtomorrow.ru/sendme/*",
-    "https://api.telegram.org/",
+    "https://api.telegram.org/*",
+    "https://maps.googleapis.com/*",
     "*://*/"
   ]
 }
