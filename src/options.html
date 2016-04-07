@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>SENDME</title>
+	<script src="scripts/vendors/jquery2.min.js"></script>
+	<script src="scripts/options.js"></script>
+	<script src="scripts/vendors/bootstrap.min.js"></script>
+	<link href="styles/bootstrap.min.css" rel="stylesheet">
+	<link href="styles/font-awesome.min.css" rel="stylesheet">
+	<style TYPE="text/css">
+		body {
+			width: 100%;
+		}
+		
+		.btn {
+			margin-bottom: 10px;
+		}
+	</style>
+</head>
+
+<body">
+	<div class="container">
+		<h4>PositionTelegram</h4>
+		<div class="row">
+			<div class="col-md-12">
+				<h4 id="manual" class="manual">Configuració </h4>
+				<div class="panel panel-default manual">
+					<div class="panel-body">
+						<span id="manual_first">Bot Token</span>
+						<br/>
+						<br/>
+						<input id="config_bot_token" size="50" placeholder="token">
+						<br/>
+						<br/> <span id="manual_second">Nom del Grup</span>
+						<br/>
+						<br/>
+						<input id="config_bot_group" size="50" placeholder="nom del grup">
+						<br/>
+						<br/>
+						<span id="manual_third">(Opcional) Posa l'origen de la ruta</span><br/>
+                        <input id="config_origin" size="50" placeholder="orígen de la ruta">
+                         <br/><br/>
+						<button id="config_save" class="btn btn-success" >Save</button>
+						<br />
+						<button id="config_reset" class="btn btn-danger" >Restaura Tot</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>
