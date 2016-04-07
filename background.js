@@ -6,7 +6,7 @@ function iconClicked() {
     });
     setTimeout(function () {
         chrome.browserAction.setIcon({
-            path: "sendme.png"
+            path: "truck.png"
         })
     }, 100);
     chrome.tabs.getSelected(null, function (a) {
@@ -15,9 +15,12 @@ function iconClicked() {
         if (url.indexOf("https://www.google.es/maps") != -1) {
             var address;
             if (url.indexOf("https://www.google.es/maps/dir") != -1) {
+                //dir
                 address = url.split('/')[6];
             } else {
+                //place
                 address = url.split('/')[5];
+                if(localStorage.telegram_origin && localStorage.telegram_origin!='')doAddOriginToURL(a,localStorage.telegram_origin);            
             }
             doGetCoords(address, function(address_txt,coords){
                 doSendPosition(address_txt,coords);
@@ -50,6 +53,15 @@ function doSendPosition(address_txt,pos, callback) {
     sendMessage(bot_token,chat_id,address_txt,function(){
         sendLocation(bot_token, chat_id,lat,lng, callback);
     })
+}
+
+function doAddOriginToURL(tab,origin,callback){
+    var url = tab.url;
+    var splt = url.split('/');
+    splt[4] = 'dir'
+    splt.splice(5,0,encodeURIComponent(origin));
+    var finalURL = splt.join('/');
+    chrome.tabs.update(tab.id, {url: finalURL});
 }
 
 function sendLocation(bot_token,chat_id, lat, lng, callback) {
@@ -94,7 +106,7 @@ function setPopup() {
         text: ""
     });
     chrome.browserAction.setIcon({
-        path: "sendme.png"
+        path: "truck.png"
     });
     chrome.browserAction.setTitle({
         title: 'PosicioTelegram'
@@ -106,11 +118,12 @@ function setPopupWellcome() {
     chrome.browserAction.setPopup({
         popup: "popup.html"
     }), chrome.browserAction.setIcon({
-        path: "sendme_disabled.png"
+        path: "truck_disabled.png"
     }), chrome.browserAction.setBadgeText({
         text: "ID !"
     })
 }
+
 
 function alreadyConfigured() {
     console.log("alreadyConfigured. token " + localStorage.telegram_bot_token + " groupName " + localStorage.telegram_group_name + " groupId " + localStorage.telegram_group_id);
@@ -121,7 +134,7 @@ chrome.extension.onMessage.addListener(function (request, sender, sendResponse) 
     if ("createGroup" == request.msg) {
         localStorage.telegram_bot_token = request.bot_id;
         localStorage.telegram_group_name = request.groupName;
-
+        localStorage.telegram_origin = request.origin;
         function do_query() {
             xhr = new XMLHttpRequest();
             var url = telegramApi_URL + "bot" + request.bot_id + "/getUpdates";
@@ -137,7 +150,7 @@ chrome.extension.onMessage.addListener(function (request, sender, sendResponse) 
                     });
                     if (localStorage.telegram_group_id) {
                         alreadyConfigured();
-                        sendResponse({status:'ok'});
+                        chrome.extension.sendMessage({status:'configured_ok'})
                     } else {
                         setTimeout(function () { do_query() }, 10000);
                     }

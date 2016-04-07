@@ -1,6 +1,7 @@
 function loadOptions() {
 	$("#config_bot_token").val(localStorage.telegram_bot_token);
 	$("#config_bot_group").val(localStorage.telegram_group_name);
+	$("#config_origin").val(localStorage.telegram_origin);
 	$("#config_save").click(saveOptions);
 	$("#config_reset").click(eraseOptions);
 }
@@ -8,6 +9,7 @@ function loadOptions() {
 function saveOptions() {
 	var botId = $("#config_bot_token").val();
 	var groupName = $("#config_bot_group").val();
+	localStorage.telegram_origin =  $("#config_origin").val();
 	if (botId != '' && groupName != '') {
         //TODO Add bot into group and send hello message
         $(this).find("span").addClass("fa-spin");
@@ -32,6 +34,7 @@ function eraseOptions() {
 	});
 	$("#config_bot_token").val("");
 	$("#config_bot_group").val("");
+	$("#config_origin").val("");
 }
 
 $(document).ready(function () {
