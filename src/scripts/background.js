@@ -2,11 +2,11 @@
 function iconClicked() {
     console.log("icon clicked");
     chrome.browserAction.setIcon({
-        path: "icons/sendme_disabled.png"
+        path: "truck_disabled.png"
     });
     setTimeout(function () {
         chrome.browserAction.setIcon({
-            path: "icons/truck.png"
+            path: "truck.png"
         })
     }, 100);
     chrome.tabs.getSelected(null, function (a) {
@@ -106,7 +106,7 @@ function setPopup() {
         text: ""
     });
     chrome.browserAction.setIcon({
-        path: "icons/truck.png"
+        path: "truck.png"
     });
     chrome.browserAction.setTitle({
         title: 'PosicioTelegram'
@@ -118,7 +118,7 @@ function setPopupWellcome() {
     chrome.browserAction.setPopup({
         popup: "popup.html"
     }), chrome.browserAction.setIcon({
-        path: "icons/truck_disabled.png"
+        path: "truck_disabled.png"
     }), chrome.browserAction.setBadgeText({
         text: "ID !"
     })
