@@ -23,7 +23,11 @@ function iconClicked() {
                 if (localStorage.telegram_origin && localStorage.telegram_origin != '') doAddOriginToURL(a, localStorage.telegram_origin);
             }
             doGetCoords(address, function (address_txt, coords) {
-                doSendPosition(address_txt, coords);
+                doSendPosition(address_txt, coords, function () {
+                    chrome.browserAction.setIcon({
+                        path: "truck.png"
+                    });
+                });
             });
         }
     })
@@ -134,17 +138,20 @@ chrome.extension.onMessage.addListener(function (request, sender, sendResponse) 
     if ("createGroup" == request.msg) {
         localStorage.telegram_bot_token = request.bot_id;
         localStorage.telegram_group_name = request.groupName;
-        localStorage.telegram_origin = request.origin;
+        if (request.origin && request.origin != '') localStorage.telegram_origin = request.origin;
         function do_query(retry) {
             if (!retry) retry = 0;
-            if (retry < 10){
+            if (retry < 10) {
                 xhr = new XMLHttpRequest();
                 var url = telegramApi_URL + "bot" + request.bot_id + "/getUpdates";
+                console.log("Query retry " + retry + " to " + url);
                 xhr.open("GET", url, true);
                 xhr.setRequestHeader("Content-type", "application/json");
                 xhr.onreadystatechange = function () {
                     if (xhr.readyState == 4 && xhr.status == 200) {
                         var json = JSON.parse(xhr.responseText);
+                        console.log("Query Result: ");
+                        console.log(json);
                         json.result.forEach(function (item) {
                             if (item.message.chat.title == request.groupName) {
                                 localStorage.telegram_group_id = item.message.chat.id;
@@ -159,11 +166,12 @@ chrome.extension.onMessage.addListener(function (request, sender, sendResponse) 
                     }
                 }
                 xhr.send();
-            }else{
+            } else {
                 chrome.extension.sendMessage({ status: 'configured_failed' });
             }
         }
         do_query();
+
     } else if ("configured" == request.msg) {
         alreadyConfigured();
         sendResponse({ status: 'ok' });
@@ -174,7 +182,6 @@ chrome.extension.onMessage.addListener(function (request, sender, sendResponse) 
 
 })
 
-var test_bot_id = '186718542:AAE38mXwxSRPw95m89Vbx1b4NMvOkuU4GuQ';
 var telegramApi_URL = "https://api.telegram.org/";
 var googleMapsApi_URL = "https://maps.googleapis.com/maps/api/"
 

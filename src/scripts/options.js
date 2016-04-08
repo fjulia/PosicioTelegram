@@ -7,25 +7,33 @@ function loadOptions() {
 }
 
 function saveOptions() {
-	var botId = $("#config_bot_token").val();
-	var groupName = $("#config_bot_group").val();
-	localStorage.telegram_origin =  $("#config_origin").val();
-	if (botId != '' && groupName != '') {
+	var botId = $("#config_bot_token").val().trim();
+	var groupName = $("#config_bot_group").val().trim();
+	var origin  = $("#config_origin").val().trim();
+	if ((botId != '' && botId != localStorage.telegram_bot_token) || (groupName != '' && groupName != localStorage.telegram_group_name)) {
         //TODO Add bot into group and send hello message
         $(this).find("span").addClass("fa-spin");
         $(this).html('<span class="fa fa-refresh fa-spin"></span>  ' + "comprovant");
-
-
 		chrome.extension.sendMessage({
             msg: "createGroup",
             bot_id: botId,
-            groupName: groupName
-        }, function (a) {
-            "ok" == a.status && (console.log("Create bot result is:"), console.dir(a))
-			location.reload();
-        })
-    }
+            groupName: groupName,
+			request: origin
+        });
+    }else{
+		if(origin && origin !='')localStorage.telegram_origin =  origin;
+		window.close();
+	}
 }
+
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+    if ("configured_ok" == message.status) {
+        window.close();
+    }else if ("configured_failed" == message.status) {
+        window.close();
+        alert("La configuració ha fallat. Assegure't d'haver entrat les dades de configuració correctament!");
+    }
+});
 
 function eraseOptions() {
 	localStorage.clear();
