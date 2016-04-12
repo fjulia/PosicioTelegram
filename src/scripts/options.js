@@ -2,15 +2,32 @@ function loadOptions() {
 	$("#config_bot_token").val(localStorage.telegram_bot_token);
 	$("#config_bot_group").val(localStorage.telegram_group_name);
 	$("#config_origin").val(localStorage.telegram_origin);
+	$('#sendRuta').prop('checked', localStorage.telegram_send_ruta=='true');
+	$("#sendRuta").change(setSendRuta);
 	$("#config_save").click(saveOptions);
 	$("#config_reset").click(eraseOptions);
+}
+
+function setSendRuta() {
+	var origin = $("#config_origin").val().trim();
+	if ($('#sendRuta').is(":checked")) {
+		// it is checked
+		if(origin && origin !== ''){
+			localStorage.telegram_send_ruta=true;
+		}else{
+			$('#sendRuta').prop('checked', false);
+		}
+	}else{
+		localStorage.telegram_send_ruta = false;
+	}
+	$('#sendRuta').prop('checked', localStorage.telegram_send_ruta=='true');
 }
 
 function saveOptions() {
 	var botId = $("#config_bot_token").val().trim();
 	var groupName = $("#config_bot_group").val().trim();
-	var origin  = $("#config_origin").val().trim();
-	if ((botId != '' && botId != localStorage.telegram_bot_token) || (groupName != '' && groupName != localStorage.telegram_group_name)) {
+	var origin = $("#config_origin").val().trim();
+	if ((botId !== '' && botId != localStorage.telegram_bot_token) || (groupName !== '' && groupName != localStorage.telegram_group_name)) {
         //TODO Add bot into group and send hello message
         $(this).find("span").addClass("fa-spin");
         $(this).html('<span class="fa fa-refresh fa-spin"></span>  ' + "comprovant");
@@ -20,8 +37,8 @@ function saveOptions() {
             groupName: groupName,
 			request: origin
         });
-    }else{
-		if(origin && origin !='')localStorage.telegram_origin =  origin;
+    } else {
+		if (origin && origin !== '') localStorage.telegram_origin = origin;
 		window.close();
 	}
 }
@@ -29,7 +46,7 @@ function saveOptions() {
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if ("configured_ok" == message.status) {
         window.close();
-    }else if ("configured_failed" == message.status) {
+    } else if ("configured_failed" == message.status) {
         window.close();
         alert("La configuració ha fallat. Assegure't d'haver entrat les dades de configuració correctament!");
     }

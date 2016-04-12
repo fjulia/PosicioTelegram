@@ -7,7 +7,7 @@ function configure() {
     var botId = $("#bot_token").val().trim();
     var groupName = $("#bot_group").val().trim();
     var origin = $("#route_origin").val().trim();
-    if (botId != '' && groupName != '') {
+    if (botId !== '' && groupName !== '') {
         //TODO Add bot into group and send hello message
         $(this).find("span").addClass("fa-spin");
         $(this).html('<span class="fa fa-refresh fa-spin"></span>  ' + "comprovant");
@@ -38,7 +38,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
 
 $(document).ready(function () {
-    (localStorage.telegram_bot_token && localStorage.telegram_group_id) ? (console.log("telegram_bot_token was found"), $(".manual").remove()) : localStorage.ready ? $("#getID").prop("disabled", !1) : $("#getID").click(configure)
+    (localStorage.telegram_bot_token && localStorage.telegram_group_id) ? (console.log("telegram_bot_token was found"), $(".manual").remove()) : localStorage.ready ? $("#getID").prop("disabled", !1) : $("#getID").click(configure);
 
     $("#bot_token").val(localStorage.tmp_telegram_bot_token);
     $("#bot_group").val(localStorage.tmp_telegram_group_name);

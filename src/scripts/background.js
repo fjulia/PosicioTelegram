@@ -7,11 +7,11 @@ function iconClicked() {
     setTimeout(function () {
         chrome.browserAction.setIcon({
             path: "truck.png"
-        })
+        });
     }, 100);
-    chrome.tabs.getSelected(null, function (a) {
-        console.log(a);
-        var url = a.url;
+    chrome.tabs.getSelected(null, function (tab) {
+        console.log(tab);
+        var url = tab.url;
         if (url.indexOf("https://www.google.es/maps") != -1) {
             var address;
             if (url.indexOf("https://www.google.es/maps/dir") != -1) {
@@ -20,17 +20,21 @@ function iconClicked() {
             } else {
                 //place
                 address = url.split('/')[5];
-                if (localStorage.telegram_origin && localStorage.telegram_origin != '') doAddOriginToURL(a, localStorage.telegram_origin);
+            }
+            var originUrl;
+            if (localStorage.telegram_origin && localStorage.telegram_origin !== '') {
+                originUrl = getOriginToURL(url, localStorage.telegram_origin);
+                chrome.tabs.update(tab.id, { url: originUrl });
             }
             doGetCoords(address, function (address_txt, coords) {
-                doSendPosition(address_txt, coords, function () {
+                doSendPosition(address_txt, coords, originUrl, function () {
                     chrome.browserAction.setIcon({
                         path: "truck.png"
                     });
                 });
             });
         }
-    })
+    });
 }
 
 function doGetCoords(address, callback) {
@@ -45,27 +49,61 @@ function doGetCoords(address, callback) {
             var json = JSON.parse(xhr.responseText);
             if (callback) callback(json.results[0].formatted_address, json.results[0].geometry.location);
         }
-    }
+    };
     xhr.send();
 }
 
-function doSendPosition(address_txt, pos, callback) {
+function doSetRouteOriginButton(message_id, url, callback) {
+    var bot_token = localStorage.telegram_bot_token;
+    var chat_id = localStorage.telegram_group_id;
+    var keyboard = { 'inline_keyboard': [] };
+    keyboard.inline_keyboard[0] = [];
+    var button = { 'text': 'Ruta des de Origen', 'url': url };
+    keyboard.inline_keyboard[0].push(button);
+    setReplyKeyBoardButton(bot_token, chat_id, message_id, keyboard, callback);
+}
+
+function doSendPosition(address_txt, pos, originUrl, callback) {
     var bot_token = localStorage.telegram_bot_token;
     var chat_id = localStorage.telegram_group_id;
     var lat = pos.lat;
     var lng = pos.lng;
     sendMessage(bot_token, chat_id, address_txt, function () {
-        sendLocation(bot_token, chat_id, lat, lng, callback);
-    })
+        sendLocation(bot_token, chat_id, lat, lng, function (message_id) {
+            if (originUrl && localStorage.telegram_send_ruta == 'true') {
+                doSetRouteOriginButton(message_id, originUrl, callback);
+            }
+        });
+    });
 }
 
-function doAddOriginToURL(tab, origin, callback) {
-    var url = tab.url;
+function getOriginToURL(url, origin) {
     var splt = url.split('/');
-    splt[4] = 'dir'
-    splt.splice(5, 0, encodeURIComponent(origin));
+    if(splt[4] == 'place'){
+        splt[4] = 'dir';
+        splt.splice(5, 0, encodeURIComponent(origin));    
+    }
     var finalURL = splt.join('/');
-    chrome.tabs.update(tab.id, { url: finalURL });
+    //return finalURL.split('data')[0];
+    return finalURL;
+}
+
+
+function setReplyKeyBoardButton(bot_token, chat_id, message_id, keyboard, callback) {
+    var xhr = new XMLHttpRequest();
+    var url = telegramApi_URL + "bot" + bot_token + "/editMessageReplyMarkup";
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-type", "application/json");
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            var json = JSON.parse(xhr.responseText);
+            console.log(json);
+            if (callback) callback();
+        }
+    };
+    var data = JSON.stringify({ 'chat_id': chat_id, 'message_id': message_id, 'reply_markup': keyboard });
+    console.log(data);
+    xhr.send(data);
 }
 
 function sendLocation(bot_token, chat_id, lat, lng, callback) {
@@ -77,9 +115,9 @@ function sendLocation(bot_token, chat_id, lat, lng, callback) {
         if (xhr.readyState == 4 && xhr.status == 200) {
             var json = JSON.parse(xhr.responseText);
             console.log(json);
-            if (callback) callback();
+            if (callback) callback(json.result.message_id);
         }
-    }
+    };
     var data = JSON.stringify({ 'chat_id': chat_id, 'latitude': lat, 'longitude': lng });
     console.log(data);
     xhr.send(data);
@@ -94,9 +132,9 @@ function sendMessage(bot_token, chat_id, txt, callback) {
         if (xhr.readyState == 4 && xhr.status == 200) {
             var json = JSON.parse(xhr.responseText);
             console.log(json);
-            if (callback) callback();
+            if (callback) callback(json.result.message_id);
         }
-    }
+    };
     var data = JSON.stringify({ 'chat_id': chat_id, 'text': txt });
     console.log(data);
     xhr.send(data);
@@ -121,11 +159,13 @@ function setPopup() {
 function setPopupWellcome() {
     chrome.browserAction.setPopup({
         popup: "popup.html"
-    }), chrome.browserAction.setIcon({
+    });
+    chrome.browserAction.setIcon({
         path: "truck_disabled.png"
-    }), chrome.browserAction.setBadgeText({
+    });
+    chrome.browserAction.setBadgeText({
         text: "ID !"
-    })
+    });
 }
 
 
@@ -138,7 +178,7 @@ chrome.extension.onMessage.addListener(function (request, sender, sendResponse) 
     if ("createGroup" == request.msg) {
         localStorage.telegram_bot_token = request.bot_id;
         localStorage.telegram_group_name = request.groupName;
-        if (request.origin && request.origin != '') localStorage.telegram_origin = request.origin;
+        if (request.origin && request.origin !== '') localStorage.telegram_origin = request.origin;
         function do_query(retry) {
             if (!retry) retry = 0;
             if (retry < 10) {
@@ -161,10 +201,10 @@ chrome.extension.onMessage.addListener(function (request, sender, sendResponse) 
                             alreadyConfigured();
                             chrome.extension.sendMessage({ status: 'configured_ok' });
                         } else {
-                            setTimeout(function () { do_query(retry + 1) }, 10000);
+                            setTimeout(function () { do_query(retry + 1); }, 10000);
                         }
                     }
-                }
+                };
                 xhr.send();
             } else {
                 chrome.extension.sendMessage({ status: 'configured_failed' });
@@ -180,14 +220,15 @@ chrome.extension.onMessage.addListener(function (request, sender, sendResponse) 
         sendResponse({ status: 'ok' });
     }
 
-})
+});
 
 var telegramApi_URL = "https://api.telegram.org/";
-var googleMapsApi_URL = "https://maps.googleapis.com/maps/api/"
+var googleMapsApi_URL = "https://maps.googleapis.com/maps/api/";
 
 window.console || (window.console = {
     log: function () { },
     dir: function () { }
-}), console.log("background.js engaged!");
+});
+console.log("background.js engaged!");
 
 localStorage.telegram_bot_token && localStorage.telegram_group_id ? (console.log("alreadyConfigured. token " + localStorage.telegram_bot_token + " groupName " + localStorage.telegram_group_name + " groupId " + localStorage.telegram_group_id), setPopup()) : setPopupWellcome();
