@@ -14,27 +14,49 @@ function iconClicked() {
         var url = tab.url;
         if (url.indexOf("https://www.google.es/maps") != -1) {
             var address;
-            if (url.indexOf("https://www.google.es/maps/dir") != -1) {
-                //dir
-                address = url.split('/')[6];
-            } else {
-                //place
-                address = url.split('/')[5];
-            }
-            var originUrl;
-            if (localStorage.telegram_origin && localStorage.telegram_origin !== '') {
-                originUrl = getOriginToURL(url, localStorage.telegram_origin);
-                chrome.tabs.update(tab.id, { url: originUrl });
-            }
-            doGetCoords(address, function (address_txt, coords) {
-                doSendPosition(address_txt, coords, originUrl, function () {
-                    chrome.browserAction.setIcon({
-                        path: "truck.png"
+            if (url.split('/')[4]=='place'||url.split('/')[4]=='dir'){
+                if (url.indexOf("https://www.google.es/maps/dir") != -1) {
+                    //dir
+                    address = url.split('/')[6];
+                } else {
+                    //place
+                    address = url.split('/')[5];
+                }
+                var originUrl;
+                if (localStorage.telegram_origin && localStorage.telegram_origin !== '') {
+                    originUrl = getOriginToURL(url, localStorage.telegram_origin);
+                    chrome.tabs.update(tab.id, { url: originUrl });
+                }
+                doGetCoords(address, function (address_txt, coords) {
+                    doSendPosition(address_txt, coords, originUrl, function () {
+                        chrome.browserAction.setIcon({
+                            path: "truck.png"
+                        });
                     });
                 });
-            });
+            } else {
+               // alert("Cal buscar un desti per poder enviar la posicio");
+                openDialog();
+            }
         }
     });
+}
+
+function openDialog(){
+    chrome.tabs.create({
+            url: chrome.extension.getURL('dialog.html'),
+            active: false
+        }, function(tab) {
+            // After the tab has been created, open a window to inject the tab
+            chrome.windows.create({
+                tabId: tab.id,
+                type: 'popup',
+                width: 500,
+                height: 230,
+                focused: true
+                // incognito, top, left, ...
+            });
+        });
 }
 
 function doGetCoords(address, callback) {
@@ -79,9 +101,9 @@ function doSendPosition(address_txt, pos, originUrl, callback) {
 
 function getOriginToURL(url, origin) {
     var splt = url.split('/');
-    if(splt[4] == 'place'){
+    if (splt[4] == 'place') {
         splt[4] = 'dir';
-        splt.splice(5, 0, encodeURIComponent(origin));    
+        splt.splice(5, 0, encodeURIComponent(origin));
     }
     var finalURL = splt.join('/');
     //return finalURL.split('data')[0];

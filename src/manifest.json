@@ -4,7 +4,7 @@
   "name": "PosicioTelegram",
   "description": "This extension sends google maps position picked from Url to a Telegram group through a bot",
   "author": "Ferran Julia",
-  "version": "1.7",
+  "version": "1.8",
   "background": {
     "persistent": true,
     "page": "background.html"
